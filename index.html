@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Creeper Circuit | Game Developer</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #0d0d12;
+            color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+
+            /* NORMAL CURSOR */
+            cursor: url("cursor.png") 0 0, auto;
+        }
+
+        /* HOVER CURSOR */
+
+        a,
+        button,
+        .game-card,
+        .about-box {
+            cursor: url("cursor-hover.png") 0 0, pointer;
+        }
+
+        /* ANIMATED BACKGROUND */
+
+        .background-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(139, 108, 255, 0.06) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(139, 108, 255, 0.06) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+
+            animation: gridMove 12s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from {
+                background-position: 0 0, 0 0;
+            }
+
+            to {
+                background-position: 40px 40px, 40px 40px;
+            }
+        }
+
+        /* NAVBAR */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 8%;
+
+            background: rgba(13, 13, 18, 0.9);
+            backdrop-filter: blur(10px);
+
+            border-bottom: 1px solid #25252d;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #8b6cff;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        nav a {
+            color: #aaa;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            color: #fff;
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 85vh;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+
+            padding: 40px 20px;
+
+            position: relative;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(23, 21, 37, 0.75) 0%,
+                    rgba(13, 13, 18, 0.4) 55%
+                );
+        }
+
+        /* PIXEL HUD */
+
+        .pixel-hud {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-bottom: 25px;
+
+            font-family: monospace;
+            font-size: 13px;
+            letter-spacing: 2px;
+
+            color: #777;
+
+            animation: hudFloat 3s ease-in-out infinite;
+        }
+
+        .pixel-dot {
+            width: 8px;
+            height: 8px;
+
+            background: #8b6cff;
+
+            box-shadow:
+                8px 0 #8b6cff,
+                0 8px #8b6cff;
+
+            image-rendering: pixelated;
+        }
+
+        @keyframes hudFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .hero small {
+            color: #8b6cff;
+            letter-spacing: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 {
+            font-size: clamp(50px, 9vw, 100px);
+            line-height: 1;
+            margin-bottom: 20px;
+
+            font-weight: 900;
+
+            text-shadow:
+                4px 4px 0 rgba(139, 108, 255, 0.12);
+        }
+
+        .hero p {
+            color: #aaa;
+            font-size: 18px;
+            max-width: 600px;
+        }
+
+        /* PIXEL DIVIDER */
+
+        .pixel-divider {
+            display: flex;
+            gap: 5px;
+
+            margin-top: 35px;
+        }
+
+        .pixel-divider span {
+            width: 6px;
+            height: 6px;
+
+            background: #6250bd;
+        }
+
+        .pixel-divider span:nth-child(2) {
+            background: #8b6cff;
+        }
+
+        .pixel-divider span:nth-child(3) {
+            background: #6250bd;
+        }
+
+        /* SECTIONS */
+
+        section {
+            max-width: 1100px;
+            margin: auto;
+            padding: 100px 8%;
+        }
+
+        .section-title {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .section-description {
+            color: #999;
+            margin-bottom: 40px;
+        }
+
+        /* ABOUT */
+
+        .about-box {
+            background: rgba(20, 20, 27, 0.9);
+
+            border: 1px solid #25252d;
+            border-radius: 12px;
+
+            padding: 30px;
+
+            color: #bbb;
+
+            backdrop-filter: blur(4px);
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .about-box:hover {
+            transform: translateY(-4px);
+            border-color: #6250bd;
+        }
+
+        /* GAMES */
+
+        .games {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(280px, 1fr)
+                );
+
+            gap: 25px;
+        }
+
+        .game-card {
+            position: relative;
+            overflow: hidden;
+
+            background: rgba(23, 23, 30, 0.9);
+
+            border: 1px solid #292932;
+            border-radius: 12px;
+
+            padding: 25px;
+
+            min-height: 180px;
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+            backdrop-filter: blur(4px);
+        }
+
+        /* MOVING LINE */
+
+        .game-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: -100%;
+
+            width: 100%;
+            height: 2px;
+
+            background: #8b6cff;
+
+            transition: left 0.4s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+
+            border-color: #6250bd;
+
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        /* CONTACT */
+
+        .contact-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .contact-link {
+            display: inline-block;
+
+            padding: 12px 18px;
+
+            background: rgba(23, 23, 30, 0.9);
+
+            border: 1px solid #292932;
+            border-radius: 8px;
+
+            color: #ddd;
+            text-decoration: none;
+
+            transition: 0.2s;
+
+            backdrop-filter: blur(4px);
+        }
+
+        .contact-link:hover {
+            transform: translateY(-3px);
+
+            border-color: #8b6cff;
+
+            color: #fff;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+
+            padding: 30px;
+
+            border-top: 1px solid #25252d;
+
+            color: #666;
+
+            font-size: 14px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            nav {
+                padding: 15px 5%;
+            }
+
+            nav ul {
+                gap: 12px;
+                font-size: 14px;
+            }
+
+            .hero h1 {
+                font-size: 55px;
+            }
+
+            section {
+                padding: 70px 5%;
+            }
+
+            .pixel-hud {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ANIMATED BACKGROUND -->
+
+    <div class="background-grid"></div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav>
+
+        <div class="logo">
+            Creeper Circuit
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="#about">
+                    About
+                </a>
+            </li>
+
+            <li>
+                <a href="#games">
+                    Games
+                </a>
+            </li>
+
+            <li>
+                <a href="#contact">
+                    Contact
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- HERO -->
+
+    <header class="hero">
+
+        <div class="pixel-hud">
+            <div class="pixel-dot"></div>
+            PLAYER 01
+        </div>
+
+        <small>
+            GAME DEVELOPER
+        </small>
+
+        <h1>
+            I make games.
+        </h1>
+
+        <p>
+            I design and build games, experiment with ideas,
+            and turn small concepts into playable projects.
+        </p>
+
+        <div class="pixel-divider">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </header>
+
+
+    <!-- ABOUT -->
+
+    <section id="about">
+
+        <h2 class="section-title">
+            About
+        </h2>
+
+        <p class="section-description">
+            A little about me and what I do.
+        </p>
+
+        <div class="about-box">
+
+            <p>
+                I'm a game developer who enjoys designing games,
+                experimenting with mechanics, and learning new
+                tools to bring ideas to life.
+            </p>
+
+            <br>
+
+            <p>
+                I mainly work with Godot and GDScript,
+                while continuing to learn and improve with
+                every project.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- GAMES -->
+
+    <section id="games">
+
+        <h2 class="section-title">
+            Games
+        </h2>
+
+        <p class="section-description">
+            Projects I've made and released.
+        </p>
+
+        <div class="games">
+
+            <div class="game-card">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONTACT -->
+
+    <section id="contact">
+
+        <h2 class="section-title">
+            Contact
+        </h2>
+
+        <p class="section-description">
+            Want to talk about games or collaborate?
+        </p>
+
+        <div class="contact-box">
+
+            <a
+                class="contact-link"
+                href="https://creeper-circuit.itch.io/"
+                target="_blank"
+            >
+                itch.io
+            </a>
+
+            <a
+                class="contact-link"
+                href="#"
+            >
+                Discord: wild_survive_71852
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+        © 2026 Creeper Circuit
+    </footer>
+
+</body>
+</html>
